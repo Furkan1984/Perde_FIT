@@ -1,0 +1,176 @@
+{
+  "app_name": "PerdeFIT",
+  "personality": "6 Glass / Luxe DARK (Modified with Modern Geometric Sans for AR Tech feel)",
+  "personality_one_liner": "A dark, cinematic, and premium AR visualization tool where the room photography is the hero and the cyan tech-accent guides the measurement and design process.",
+  "color": {
+    "surface": "#09090b",
+    "onSurface": "#f4f4f5",
+    "surfaceSecondary": "#18181b",
+    "onSurfaceSecondary": "#e4e4e7",
+    "surfaceTertiary": "#27272a",
+    "onSurfaceTertiary": "#d4d4d8",
+    "surfaceInverse": "#ffffff",
+    "onSurfaceInverse": "#000000",
+    "brand": "#00D4E4",
+    "brandPrimary": "#00D4E4",
+    "onBrandPrimary": "#000000",
+    "brandSecondary": "#007A85",
+    "onBrandSecondary": "#ffffff",
+    "brandTertiary": "#00363B",
+    "onBrandTertiary": "#4AE8F2",
+    "success": "#10b981",
+    "onSuccess": "#ffffff",
+    "warning": "#f59e0b",
+    "onWarning": "#000000",
+    "error": "#ef4444",
+    "onError": "#ffffff",
+    "border": "#27272a",
+    "borderStrong": "#3f3f46",
+    "divider": "#27272a"
+  },
+  "typography": {
+    "displayFontFamily": "Outfit",
+    "textFontFamily": "Geist",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Use 8pt grid system. Generous padding around content. Empty halves of the screen equal broken layout. Sticky primary CTAs at bottom.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "1",
+  "navigation": "bottom_tabs",
+  "icon_set": "Ionicons",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use on bottom tab bar to allow room imagery to bleed through.",
+      "Use on bottom sheet handles/headers during curtain selection.",
+      "Use heavily on the AR measurement camera overlay pills (e.g., dimensions)."
+    ],
+    "dont's": [
+      "Never blur body text regions or form inputs.",
+      "Do not overdo glass on dense text screens like settings."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Ana Sayfa (Home)",
+      "purpose": "Welcome the user, offer primary entry points (Capture/Upload), and display sample projects.",
+      "states": {
+        "loading": "Centered cyan spinner.",
+        "empty": "No saved projects yet - 'İlk projeni oluştur' CTA.",
+        "error": "Failed to load projects - Retry button."
+      },
+      "layout": "Large Display title: 'Perdeni seç, odana mükemmel uyum'. Below it, a 2-column grid of two primary hero cards: 'Fotoğraf Çek' (Camera icon) and 'Fotoğraf Yükle' (Gallery icon) using surfaceSecondary with a subtle brandTertiary gradient. Below, a horizontal scroll section 'Örnek Projeler' showcasing premium dark interior photos. Bottom tab navigation: Ana Sayfa, Perdeler, Projeler, Ayarlar."
+    },
+    {
+      "name": "Ölçüm (Camera AR Measurement)",
+      "purpose": "Full-screen camera view to auto-detect or manually place window/wall measurements.",
+      "states": {
+        "loading": "Camera initializing...",
+        "empty": "N/A",
+        "error": "Camera permission required."
+      },
+      "layout": "Full-bleed camera feed. Minimal translucent UI. Top-left: Close icon. Center: Subtle targeting crosshair. Floating measurement pills (e.g., '340cm x 260cm') in heavy frosted glass overlay with white text and cyan borders. Bottom-center: Large round primary capture button with cyan accent. Bottom-left: Undo arrow."
+    },
+    {
+      "name": "Perde Seçimi (Curtain Selection)",
+      "purpose": "Visualize the room with different curtains, textures, and types.",
+      "states": {
+        "loading": "Applying AI render (shimmer effect on image).",
+        "empty": "No categories available.",
+        "error": "Failed to apply texture."
+      },
+      "layout": "Top 60% is the room image (hero). Bottom 40% is a Bottom Sheet (glassmorphism enabled). Inside sheet: Horizontal scrolling filter chips (Tümü, Fon Perde, Tül Perde, Stor, Zebra). Selected chip uses brandPrimary. Below chips: 2-column or 3-column grid of circular or squircle curtain thumbnails with labels (Keten Dokulu, Gri Pileli, vs.). Sticky bottom CTA: 'Uygula' or 'Projeyi Kaydet'."
+    },
+    {
+      "name": "Proje Detayı (Project Detail)",
+      "purpose": "Review saved AR curtain render and dimensions.",
+      "states": {
+        "loading": "Loading project...",
+        "empty": "N/A",
+        "error": "Project not found."
+      },
+      "layout": "Hero image of the final rendered room with top-to-bottom gradient scrim. Large Title of project name. Metadata rows (Dimensions, Curtain Type, Fabric) in surfaceSecondary cards. Sticky primary CTA at the bottom: 'Siparişe Geç' or 'Paylaş'."
+    }
+  ],
+  "images": {
+    "sample_room_modern_1": {
+      "url": "https://images.unsplash.com/photo-1724582586458-a51791349977?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwyfHxkYXJrJTIwbW9kZXJuJTIwbGl2aW5nJTIwcm9vbSUyMGludGVyaW9yfGVufDB8fHx8MTc4NjU0OTA3N3ww&ixlib=rb-4.1.0&q=85",
+      "alt": "Dark modern living room interior"
+    },
+    "sample_room_modern_2": {
+      "url": "https://images.unsplash.com/photo-1724582586529-62622e50c0b3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxkYXJrJTIwbW9kZXJuJTIwbGl2aW5nJTIwcm9vbSUyMGludGVyaW9yfGVufDB8fHx8MTc4NjU0OTA3N3ww&ixlib=rb-4.1.0&q=85",
+      "alt": "Dark modern living room interior variant"
+    },
+    "texture_tul_sheer": {
+      "url": "https://images.unsplash.com/photo-1615799998603-7c6270a45196?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxzaGVlciUyMHdoaXRlJTIwY3VydGFpbiUyMHRleHR1cmV8ZW58MHx8fHwxNzg2NTQ5MDc3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "White sheer curtain texture (Tül)"
+    },
+    "texture_fon_blackout": {
+      "url": "https://images.unsplash.com/photo-1675784332655-675d1a1ddcf6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTV8MHwxfHNlYXJjaHwxfHxkYXJrJTIwZ3JleSUyMGJsYWNrb3V0JTIwY3VydGFpbiUyMGZhYnJpYyUyMHRleHR1cmV8ZW58MHx8fHwxNzg2NTQ5MDc3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Dark grey blackout fabric (Fon Perde)"
+    },
+    "texture_stor_roller": {
+      "url": "https://images.unsplash.com/photo-1643313262988-cdc5f50c6019?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxyb2xsZXIlMjBibGluZCUyMGZhYnJpYyUyMHRleHR1cmV8ZW58MHx8fHwxNzg2NTQ5MDc3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Grey roller blind fabric (Stor)"
+    },
+    "texture_plise": {
+      "url": "https://images.unsplash.com/photo-1762012591530-8a5774095ebe?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTN8MHwxfHNlYXJjaHwxfHxwbGVhdGVkJTIwd2luZG93JTIwYmxpbmQlMjB0ZXh0dXJlfGVufDB8fHx8MTc4NjU0OTA3N3ww&ixlib=rb-4.1.0&q=85",
+      "alt": "Pleated window blind texture (Plise)"
+    },
+    "project_luxury_example_1": {
+      "url": "https://images.unsplash.com/photo-1754611380518-61a923cc47ca?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjBsaXZpbmclMjByb29tJTIwd2luZG93JTIwY3VydGFpbnN8ZW58MHx8fHwxNzg2NTQ5MDc3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Luxury living room with custom curtains"
+    },
+    "project_luxury_example_2": {
+      "url": "https://images.unsplash.com/photo-1754611362309-71297e9f42fd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBsaXZpbmclMjByb29tJTIwd2luZG93JTIwY3VydGFpbnN8ZW58MHx8fHwxNzg2NTQ5MDc3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Modern minimal living room with elegant drapes"
+    }
+  },
+  "haptics": {
+    "button_press": "impactLight",
+    "camera_capture": "impactHeavy",
+    "measurement_point_placed": "impactMedium",
+    "curtain_filter_selected": "selection",
+    "tab_switch": "selection"
+  },
+  "instructions_to_main_agent": [
+    "Follow the specific Turkish vocabulary requested by the user: Ana Sayfa, Perdeler, Projeler, Ayarlar for Tabs; Tümü, Fon Perde, Tül Perde, Stor, Zebra for filter chips.",
+    "Implement the 'Dark Glass / Luxe' aesthetic but with a modern, high-tech touch suitable for AR (use the requested Cyan #00D4E4 for primary actions and active states).",
+    "For the 'Perde Seçimi' (Curtain Selection) screen, ensure the bottom sheet containing textures uses expo-blur over the background image so it feels cinematic.",
+    "The camera measurement screen must maintain a full-bleed camera feed with minimalistic UI. Use high-contrast frosted glass pills for measurement dimensions (e.g., '340cm x 260cm') to ensure readability over any room background.",
+    "Render images for curtain textures in circular or squircle thumbnails (radius: md or lg).",
+    "Always apply a vertical gradient scrim under text when text sits on top of images (e.g., in the project details screen)."
+  ]
+}
