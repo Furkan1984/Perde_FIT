@@ -13,20 +13,97 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
-from emergentintegrations.llm.chat import ImageContent, LlmChat, UserMessage
+try:
+    from emergentintegrations.llm.chat import ImageContent, LlmChat, UserMessage
+
+    LLM_AVAILABLE = True
+except ImportError:  # local dev / tests without the Emergent package
+    ImageContent = LlmChat = UserMessage = None
+    LLM_AVAILABLE = False
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
-mongo_url = os.environ["MONGO_URL"]
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ["DB_NAME"]]
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
 
-EMERGENT_LLM_KEY = os.environ["EMERGENT_LLM_KEY"]
+# --- Storage: MongoDB when configured, in-memory fallback otherwise ---
+# Without MONGO_URL the API still runs (projects/quotes live in process
+# memory) so local dev, CI and smoke tests work out of the box.
+
+
+class _MemoryCollection:
+    """Minimal async collection mimicking the motor calls this app uses."""
+
+    def __init__(self):
+        self._docs = []
+
+    async def insert_one(self, doc):
+        self._docs.append(dict(doc))
+        return type("R", (), {"inserted_id": doc.get("id")})()
+
+    async def find_one(self, query, projection=None):
+        for d in self._docs:
+            if all(d.get(k) == v for k, v in query.items()):
+                return dict(d)
+        return None
+
+    def find(self, query, projection=None):
+        docs = [dict(d) for d in self._docs if all(d.get(k) == v for k, v in query.items())]
+        coll = self
+
+        class _Cursor:
+            def sort(self, key, direction):
+                docs.sort(key=lambda d: d.get(key, ""), reverse=direction < 0)
+                return self
+
+            async def to_list(self, n):
+                return docs[:n]
+
+        return _Cursor()
+
+    async def count_documents(self, query):
+        return sum(1 for d in self._docs if all(d.get(k) == v for k, v in query.items()))
+
+    async def delete_one(self, query):
+        for i, d in enumerate(self._docs):
+            if all(d.get(k) == v for k, v in query.items()):
+                self._docs.pop(i)
+                return type("R", (), {"deleted_count": 1})()
+        return type("R", (), {"deleted_count": 0})()
+
+    async def update_one(self, query, update):
+        for d in self._docs:
+            if all(d.get(k) == v for k, v in query.items()):
+                d.update(update.get("$set", {}))
+                return type("R", (), {"modified_count": 1})()
+        return type("R", (), {"modified_count": 0})()
+
+
+class _MemoryDB(dict):
+    def __getitem__(self, name):
+        if name not in self:
+            self[name] = _MemoryCollection()
+        return dict.__getitem__(self, name)
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+
+mongo_url = os.environ.get("MONGO_URL")
+client = None
+if mongo_url:
+    from motor.motor_asyncio import AsyncIOMotorClient
+
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[os.environ.get("DB_NAME", "perdefit")]
+else:
+    db = _MemoryDB()
 
 app = FastAPI(title="PerdeFIT API")
 api_router = APIRouter(prefix="/api")
@@ -297,6 +374,14 @@ def _box2d_to_pct(box) -> Optional[dict]:
     )
 
 
+def _require_llm():
+    if not LLM_AVAILABLE or not EMERGENT_LLM_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="Yapay zeka servisi yapılandırılmamış (EMERGENT_LLM_KEY); ölçüleri elle gir",
+        )
+
+
 DETECT_MODEL = "gemini-3-flash-preview"
 
 DETECT_PROMPT = (
@@ -360,6 +445,7 @@ async def _estimate_cm(image_b64: str, ref_text: str) -> dict:
 
 @api_router.post("/analyze-measurements", response_model=MeasurementResponse)
 async def analyze_measurements(payload: MeasurementRequest):
+    _require_llm()
     try:
         image_b64 = _strip_data_url(payload.image_base64)
 
@@ -399,6 +485,7 @@ async def analyze_measurements(payload: MeasurementRequest):
 
 @api_router.post("/render-curtain", response_model=RenderResponse)
 async def render_curtain(payload: RenderRequest):
+    _require_llm()
     try:
         image_b64 = _strip_data_url(payload.image_base64)
 
@@ -578,4 +665,5 @@ app.add_middleware(
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    if client is not None:
+        client.close()
